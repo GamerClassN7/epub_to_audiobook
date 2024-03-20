@@ -30,6 +30,11 @@ class EpubBookParser(BaseBookParser):
     def get_book(self):
         return self.book
 
+    def get_spine_key(self):
+        spine_keys = {id:(ii,id) for (ii,(id,show)) in enumerate(self.book.spine)}
+        past_end = len(spine_keys)
+        return lambda itm: spine_keys.get(itm.get_id(), (past_end,itm.get_id()))
+
     def get_book_title(self) -> str:
         if self.book.get_metadata('DC', 'title'):
             return self.book.get_metadata("DC", "title")[0][0]
@@ -42,7 +47,9 @@ class EpubBookParser(BaseBookParser):
 
     def get_chapters(self, break_string) -> List[Tuple[str, str]]:
         chapters = []
-        for item in self.book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
+        raw_chapters = sorted([self.get_spine_key()(itm) for itm in self.book.get_items_of_type(ebooklib.ITEM_DOCUMENT)])
+        
+        for item in  raw_chapters:
             content = item.get_content()
             soup = BeautifulSoup(content, "lxml")
             title = ""
