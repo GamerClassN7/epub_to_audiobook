@@ -44,6 +44,10 @@ class AudiobookGenerator:
 
             logger.info(f"Chapters count: {len(chapters)}.")
 
+            for chapter in chapters:
+                logger.info(len(chapter))
+            
+
             # Check chapter start and end args
             if self.config.chapter_start < 1 or self.config.chapter_start > len(chapters):
                 raise ValueError(
